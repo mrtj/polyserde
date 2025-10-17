@@ -23,3 +23,10 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-root = ""
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    # Ignore expected version compatibility warnings from polyserde tests
+    "ignore:⚠️ Library.*not found:UserWarning",
+    "ignore:⚠️.*version.*:UserWarning",
+]
