@@ -1,0 +1,20 @@
+[project]
+name = "polyserde"
+version = "0.1.0"
+description = "Polymorphic serialization / deserialization for pydantic data classes"
+readme = "README.md"
+authors = [
+    { name = "Janos Tolgyesi", email = "janos.tolgyesi@gmail.com" }
+]
+requires-python = "~=3.11"
+dependencies = [
+    "packaging>=25.0,<=26.0",
+    "pydantic>=2.0.0,<3.0.0",
+]
+
+[build-system]
+requires = ["uv_build~=0.7.3"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
