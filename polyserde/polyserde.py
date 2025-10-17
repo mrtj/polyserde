@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional
 from enum import Enum
 import inspect
 import importlib
@@ -31,8 +31,8 @@ class PolymorphicSerde:
         cls,
         obj: Any,
         *,
-        lib: str | None = None,
-        version: str | None = None,
+        lib: Optional[str] = None,
+        version: Optional[str] = None,
     ) -> dict:
         """Serialize object to JSON-safe dict, embedding library and version info."""
         data = cls._to_json(obj)
