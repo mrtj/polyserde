@@ -21,6 +21,7 @@ class PolymorphicSerde:
     ENUM_KEY = "__enum__"
     CLASS_REF_KEY = "__class_ref__"
     KEY_TAG = "__key__"
+    TUPLE_KEY = "__tuple__"
 
     # ---------------------
     # Public API
@@ -141,7 +142,8 @@ class PolymorphicSerde:
         elif isinstance(obj, list):
             return [cls._to_json(v) for v in obj]
         elif isinstance(obj, tuple):
-            return [cls._to_json(v) for v in obj]
+            # Mark tuples so they can be reconstructed (important for dict keys)
+            return {cls.TUPLE_KEY: [cls._to_json(v) for v in obj]}
 
         elif obj is None or isinstance(obj, (str, int, float, bool)):
             return obj
@@ -166,6 +168,9 @@ class PolymorphicSerde:
             if cls.CLASS_REF_KEY in obj:
                 return cls._import_from_path(obj[cls.CLASS_REF_KEY])
 
+            if cls.TUPLE_KEY in obj:
+                return tuple(cls._from_json(v) for v in obj[cls.TUPLE_KEY])
+
             if cls.CLASS_KEY in obj:
                 class_path = obj.pop(cls.CLASS_KEY)
                 model_cls = cls._import_from_path(class_path)
@@ -177,6 +182,12 @@ class PolymorphicSerde:
                 for item in obj["__dict__"]:
                     k = cls._from_json(item[cls.KEY_TAG])
                     v = cls._from_json(item["value"])
+                    # Convert list keys to tuples if they can be hashed
+                    if isinstance(k, list):
+                        try:
+                            k = tuple(k)
+                        except TypeError:
+                            pass  # Keep as list if it contains unhashable items
                     d[k] = v
                 return d
 

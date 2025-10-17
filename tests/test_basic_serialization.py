@@ -89,27 +89,27 @@ class TestLists:
 
 
 class TestTuples:
-    """Test serialization of tuples (converted to lists)."""
+    """Test serialization of tuples (preserved with __tuple__ marker)."""
 
     def test_serialize_empty_tuple(self):
         result = PolymorphicSerde._to_json(())
-        assert result == []
+        assert result == {"__tuple__": []}
 
     def test_serialize_tuple(self):
         result = PolymorphicSerde._to_json((1, 2, 3))
-        assert result == [1, 2, 3]
+        assert result == {"__tuple__": [1, 2, 3]}
 
     def test_serialize_nested_tuple(self):
         result = PolymorphicSerde._to_json(((1, 2), (3, 4)))
-        assert result == [[1, 2], [3, 4]]
+        assert result == {"__tuple__": [{"__tuple__": [1, 2]}, {"__tuple__": [3, 4]}]}
 
-    def test_roundtrip_tuple_becomes_list(self):
-        """Tuples are serialized as lists and cannot be distinguished on deserialize."""
+    def test_roundtrip_tuple_preserved(self):
+        """Tuples are now preserved through serialization."""
         original = (1, 2, 3)
         serialized = PolymorphicSerde._to_json(original)
         deserialized = PolymorphicSerde._from_json(serialized)
-        assert deserialized == [1, 2, 3]  # Becomes a list
-        assert type(deserialized) is list
+        assert deserialized == (1, 2, 3)  # Stays as tuple
+        assert type(deserialized) is tuple
 
 
 class TestSimpleDictionaries:

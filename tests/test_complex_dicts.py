@@ -76,9 +76,8 @@ class TestComplexDictDeserialization:
         }
         result = PolymorphicSerde._from_json(serialized)
 
-        # Note: tuples become lists, so keys are lists
-        assert result == {(1, 2): "pair1", (3, 4): "pair2"} or \
-               result[[1, 2]] == "pair1"  # Depending on implementation
+        # Lists as keys are automatically converted to tuples
+        assert result == {(1, 2): "pair1", (3, 4): "pair2"}
 
     def test_deserialize_enum_keys(self):
         serialized = {
@@ -118,8 +117,10 @@ class TestComplexDictRoundtrip:
         serialized = PolymorphicSerde._to_json(original)
         deserialized = PolymorphicSerde._from_json(serialized)
 
-        # Tuples may become lists, check both
-        assert deserialized.get((1, 2)) == "a" or deserialized.get([1, 2]) == "a"
+        # Tuples are now preserved as dict keys
+        assert deserialized == original
+        assert (1, 2) in deserialized
+        assert (3, 4) in deserialized
 
     def test_roundtrip_mixed_keys(self):
         """Roundtrip with various key types."""
@@ -180,10 +181,7 @@ class TestDictInModels:
     """Test dicts with complex keys inside Pydantic models."""
 
     def test_model_with_complex_dict_field(self):
-        from pydantic import BaseModel
-
-        class Mapping(BaseModel):
-            color_codes: dict[Color, str]
+        from tests.conftest import Mapping
 
         mapping = Mapping(
             color_codes={
@@ -200,10 +198,7 @@ class TestDictInModels:
         assert deserialized.color_codes[Color.GREEN] == "#00FF00"
 
     def test_model_with_int_key_dict(self):
-        from pydantic import BaseModel
-
-        class IndexedData(BaseModel):
-            items: dict[int, str]
+        from tests.conftest import IndexedData
 
         data = IndexedData(items={0: "first", 1: "second", 2: "third"})
 
