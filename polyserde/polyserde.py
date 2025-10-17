@@ -46,6 +46,9 @@ class PolymorphicSerde:
     def load(cls, data: dict) -> Any:
         """Deserialize and validate version compatibility."""
 
+        # Defensive copy to avoid mutating the original input
+        data = dict(data)
+
         lib_name = data.pop(cls.LIB_KEY, None)
         version_str = data.pop(cls.VERSION_KEY, None)
         obj = cls._from_json(data)
@@ -53,13 +56,20 @@ class PolymorphicSerde:
         if lib_name and version_str:
             cls._check_version_compatibility(lib_name, version_str)
 
-        # Attach version info to deserialized object for reference
-        if lib_name:
-            setattr(obj, "__serde_lib__", lib_name)
-        if version_str:
-            setattr(obj, "__serde_version__", version_str)
+        # Attach version info only if the deserialized object can have attributes
+        if hasattr(obj, "__dict__"):
+            if lib_name:
+                setattr(obj, "__serde_lib__", lib_name)
+            if version_str:
+                setattr(obj, "__serde_version__", version_str)
+        else:
+            # If the object is not a Pydantic model or similar, just return it
+            warnings.warn(
+                "Deserialized root is not an object that supports attributes; version metadata not attached."
+            )
 
         return obj
+
 
     # ---------------------
     # Version Checking
