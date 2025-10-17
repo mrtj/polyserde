@@ -2,7 +2,7 @@
 
 import pytest
 from polyserde import PolymorphicSerde
-from tests.conftest import Animal, Cat, Dog, Bird, Zoo
+from tests.conftest import Animal, Cat, Dog, Bird, Zoo, Habitat, Park
 
 
 class TestPolymorphicSerialization:
@@ -176,14 +176,6 @@ class TestPolymorphicEdgeCases:
 
     def test_deeply_nested_polymorphic(self):
         """Test polymorphic models nested multiple levels deep."""
-        from pydantic import BaseModel
-
-        class Habitat(BaseModel):
-            name: str
-            residents: list[Animal]
-
-        class Park(BaseModel):
-            habitats: list[Habitat]
 
         park = Park(
             habitats=[

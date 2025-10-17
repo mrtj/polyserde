@@ -3,7 +3,7 @@
 import pytest
 from polyserde import PolymorphicSerde
 from pydantic import BaseModel
-from tests.conftest import Zoo, Person, Cat, Dog, Bird, Color, Priority
+from tests.conftest import (Zoo, Person, Cat, Dog, Bird, Color, Priority, Preprocessor, Normalizer, Tokenizer, Model, Transformer, CNN, Pipeline, Converter, PDFConverter, DOCXConverter, OutputFormat, MarkdownOutput, JSONOutput, DocumentPipeline, Item, Book, DVD, NestedContainer, Box, Shelf, Storage, Config, GraphNode, Graph)
 from typing import Optional
 
 
@@ -33,34 +33,6 @@ class TestRealWorldScenarios:
     def test_ml_pipeline_config(self):
         """Simulate ML pipeline configuration."""
 
-        class Preprocessor(BaseModel):
-            name: str
-
-        class Normalizer(Preprocessor):
-            mean: float
-            std: float
-
-        class Tokenizer(Preprocessor):
-            vocab_size: int
-            max_length: int
-
-        class Model(BaseModel):
-            name: str
-
-        class Transformer(Model):
-            layers: int
-            attention_heads: int
-
-        class CNN(Model):
-            filters: int
-            kernel_size: int
-
-        class Pipeline(BaseModel):
-            name: str
-            preprocessors: list[Preprocessor]
-            model: Model
-            batch_size: int
-
         pipeline = Pipeline(
             name="text_classifier",
             preprocessors=[
@@ -87,31 +59,6 @@ class TestRealWorldScenarios:
     def test_document_processing_config(self):
         """Simulate document processing configuration."""
 
-        class Converter(BaseModel):
-            name: str
-
-        class PDFConverter(Converter):
-            dpi: int = 300
-            extract_images: bool = True
-
-        class DOCXConverter(Converter):
-            preserve_formatting: bool = True
-
-        class OutputFormat(BaseModel):
-            format_type: str
-
-        class MarkdownOutput(OutputFormat):
-            include_toc: bool = True
-
-        class JSONOutput(OutputFormat):
-            pretty_print: bool = True
-            indent: int = 2
-
-        class DocumentPipeline(BaseModel):
-            converters: dict[str, Converter]
-            output: OutputFormat
-            priority: Priority
-
         pipeline = DocumentPipeline(
             converters={
                 "pdf": PDFConverter(name="pdf_conv", dpi=600),
@@ -136,29 +83,6 @@ class TestNestedPolymorphism:
 
     def test_nested_polymorphic_collections(self):
         """Multiple levels of polymorphic nesting."""
-
-        class Item(BaseModel):
-            name: str
-
-        class Book(Item):
-            author: str
-            pages: int
-
-        class DVD(Item):
-            duration_minutes: int
-
-        class Container(BaseModel):
-            label: str
-            items: list[Item]
-
-        class Box(Container):
-            fragile: bool = False
-
-        class Shelf(Container):
-            level: int
-
-        class Storage(BaseModel):
-            containers: list[Container]
 
         storage = Storage(
             containers=[
@@ -203,14 +127,6 @@ class TestComplexDataStructures:
     def test_kitchen_sink(self):
         """Test combining all features: models, enums, class refs, complex dicts."""
 
-        class Config(BaseModel):
-            name: str
-            priority_map: dict[Color, Priority]
-            handlers: dict[str, type]
-            animals: list[Cat]  # Polymorphic list
-            metadata: dict[int, str]  # Non-string keys
-            staff: Optional[Person] = None
-
         config = Config(
             name="complex_config",
             priority_map={
@@ -245,19 +161,11 @@ class TestComplexDataStructures:
     def test_graph_like_structure(self):
         """Test a graph-like structure (non-circular)."""
 
-        class Node(BaseModel):
-            id: int
-            value: str
-            neighbors: list[int]  # Store IDs, not actual nodes
-
-        class Graph(BaseModel):
-            nodes: dict[int, Node]
-
         graph = Graph(
             nodes={
-                1: Node(id=1, value="A", neighbors=[2, 3]),
-                2: Node(id=2, value="B", neighbors=[1]),
-                3: Node(id=3, value="C", neighbors=[1, 2]),
+                1: GraphNode(id=1, value="A", neighbors=[2, 3]),
+                2: GraphNode(id=2, value="B", neighbors=[1]),
+                3: GraphNode(id=3, value="C", neighbors=[1, 2]),
             }
         )
 

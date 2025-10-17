@@ -44,8 +44,7 @@ class TestEmptyCollections:
         assert deserialized == {}
 
     def test_model_with_empty_list(self):
-        class Container(BaseModel):
-            items: list[str]
+        from tests.conftest import Container
 
         obj = Container(items=[])
         serialized = PolymorphicSerde._to_json(obj)
@@ -98,9 +97,7 @@ class TestDeeplyNestedStructures:
         assert deserialized["a"]["b"]["c"]["d"]["e"] == "deep"
 
     def test_deeply_nested_models(self):
-        class Node(BaseModel):
-            value: int
-            child: 'Node' = None
+        from tests.conftest import Node
 
         # Create a chain
         node = Node(value=1, child=Node(value=2, child=Node(value=3)))

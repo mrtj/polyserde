@@ -123,6 +123,133 @@ class Palette(BaseModel):
     color_groups: list[list[Color]]
 
 
+# Models for integration tests
+class Preprocessor(BaseModel):
+    name: str
+
+
+class Normalizer(Preprocessor):
+    mean: float
+    std: float
+
+
+class Tokenizer(Preprocessor):
+    vocab_size: int
+    max_length: int
+
+
+class Model(BaseModel):
+    name: str
+
+
+class Transformer(Model):
+    layers: int
+    attention_heads: int
+
+
+class CNN(Model):
+    filters: int
+    kernel_size: int
+
+
+class Pipeline(BaseModel):
+    name: str
+    preprocessors: list[Preprocessor]
+    model: Model
+    batch_size: int
+
+
+class Converter(BaseModel):
+    name: str
+
+
+class PDFConverter(Converter):
+    dpi: int = 300
+    extract_images: bool = True
+
+
+class DOCXConverter(Converter):
+    preserve_formatting: bool = True
+
+
+class OutputFormat(BaseModel):
+    format_type: str
+
+
+class MarkdownOutput(OutputFormat):
+    include_toc: bool = True
+
+
+class JSONOutput(OutputFormat):
+    pretty_print: bool = True
+    indent: int = 2
+
+
+class DocumentPipeline(BaseModel):
+    converters: dict[str, Converter]
+    output: OutputFormat
+    priority: Priority
+
+
+class Item(BaseModel):
+    name: str
+
+
+class Book(Item):
+    author: str
+    pages: int
+
+
+class DVD(Item):
+    duration_minutes: int
+
+
+class NestedContainer(BaseModel):
+    label: str
+    items: list[Item]
+
+
+class Box(NestedContainer):
+    fragile: bool = False
+
+
+class Shelf(NestedContainer):
+    level: int
+
+
+class Storage(BaseModel):
+    containers: list[NestedContainer]
+
+
+class Config(BaseModel):
+    name: str
+    priority_map: dict[Color, Priority]
+    handlers: dict[str, type]
+    animals: list[Cat]
+    metadata: dict[int, str]
+    staff: Optional[Person] = None
+
+
+class GraphNode(BaseModel):
+    id: int
+    value: str
+    neighbors: list[int]
+
+
+class Graph(BaseModel):
+    nodes: dict[int, GraphNode]
+
+
+# Polymorphic test models
+class Habitat(BaseModel):
+    name: str
+    residents: list[Animal]
+
+
+class Park(BaseModel):
+    habitats: list[Habitat]
+
+
 @pytest.fixture
 def simple_person():
     return Person(name="Alice", age=30, email="alice@example.com")

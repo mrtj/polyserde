@@ -119,10 +119,7 @@ class TestEnumsInModels:
 
     def test_enum_in_dict_value(self):
         """Test enums as dictionary values."""
-        from pydantic import BaseModel
-
-        class Settings(BaseModel):
-            theme: dict[str, Color]
+        from tests.conftest import Settings
 
         settings = Settings(theme={"primary": Color.BLUE, "secondary": Color.GREEN})
         serialized = PolymorphicSerde._to_json(settings)
@@ -139,12 +136,7 @@ class TestEnumEdgeCases:
 
     def test_enum_with_duplicate_values(self):
         """Test enums with duplicate values (aliases)."""
-        from enum import Enum
-
-        class Status(Enum):
-            PENDING = 1
-            WAITING = 1  # Alias
-            ACTIVE = 2
+        from tests.conftest import Status
 
         # WAITING is an alias for PENDING
         serialized = PolymorphicSerde._to_json(Status.WAITING)
@@ -157,10 +149,7 @@ class TestEnumEdgeCases:
 
     def test_nested_enum_in_list_in_model(self):
         """Test deeply nested enum structures."""
-        from pydantic import BaseModel
-
-        class Palette(BaseModel):
-            color_groups: list[list[Color]]
+        from tests.conftest import Palette
 
         palette = Palette(
             color_groups=[
